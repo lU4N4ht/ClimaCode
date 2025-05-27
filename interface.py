@@ -1,74 +1,110 @@
-import tkinter as tk
-from tkinter import messagebox
-from weather import get_weather
-from PIL import Image, ImageTk
+from PyQt5.QtWidgets import (
+    QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QFrame, QMessageBox
+)
+from PyQt5.QtGui import QPixmap, QPalette, QLinearGradient, QColor, QBrush
+from PyQt5.QtCore import Qt
+import sys
+from weather import get_weather  
 
-def draw_vertical_gradient(canvas, width, height, color1, color2):
-    r1, g1, b1 = canvas.winfo_rgb(color1)
-    r2, g2, b2 = canvas.winfo_rgb(color2)
+class ClimaCodeApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("ClimaCode")
+        self.setFixedSize(370, 800)
+        self.setStyleSheet("font-family: 'Inter';")
+        self.init_ui()
 
-    r_ratio = (r2 - r1) / height
-    g_ratio = (g2 - g1) / height
-    b_ratio = (b2 - b1) / height
+    def init_ui(self):
+        palette = QPalette()
+        gradient = QLinearGradient(0, 0, self.width(), self.height())
+        gradient.setColorAt(0.0, QColor(30, 94, 206))
+        gradient.setColorAt(0.74, QColor(91, 161, 225))
+        palette.setBrush(QPalette.Window, QBrush(gradient))
+        self.setPalette(palette)
 
-    for i in range(height):
-        nr = int(r1 + (r_ratio * i))
-        ng = int(g1 + (g_ratio * i))
-        nb = int(b1 + (b_ratio * i))
-        color = f'#{nr//256:02x}{ng//256:02x}{nb//256:02x}'
-        canvas.create_line(0, i, width, i, fill=color)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
 
-def iniciar_interface():
-    largura = 370
-    altura = 800
+        logo = QLabel()
+        logo.setPixmap(QPixmap("assets/logo.png").scaled(131, 160, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        logo.setAlignment(Qt.AlignHCenter)
+        logo.setContentsMargins(0, 68, 0, 0)
+        layout.addWidget(logo)
 
-    janela = tk.Tk()
-    janela.title("ClimaCode")
-    janela.geometry(f"{largura}x{altura}")
-    janela.resizable(False, False)
+        container2 = QWidget()
+        container2.setFixedHeight(580)
+        container2.setStyleSheet("""
+            background-color: white;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+        """)
+        container2_layout = QVBoxLayout(container2)
+        container2_layout.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        container2_layout.setContentsMargins(28, 28, 28, 28)
+        container2_layout.setSpacing(45)
 
-    canvas = tk.Canvas(janela, width=largura, height=altura, highlightthickness=0)
-    canvas.pack(fill="both", expand=True)
-    draw_vertical_gradient(canvas, largura, altura, "#5BA1E1", "#1E5ECE" )
+        line = QFrame()
+        line.setFixedSize(100, 7)
+        line.setStyleSheet("background-color: #3A98DE; border-radius: 10px;")
+        container2_layout.addWidget(line, alignment=Qt.AlignCenter)
 
-    imagem = Image.open("assets/logo.png")
-    imagem = imagem.resize((131, 160))
-    logo = ImageTk.PhotoImage(imagem)
-    canvas.create_image(largura//2, 220, image=logo)
+        earth = QLabel()
+        earth.setPixmap(QPixmap("assets/earth.png").scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        earth.setAlignment(Qt.AlignCenter)
+        container2_layout.addWidget(earth)
+
+        text_label = QLabel("Busque por uma cidade:")
+        text_label.setStyleSheet("color: #3A98DE; font-size: 20px; font-weight: 900;")
+        text_label.setAlignment(Qt.AlignCenter)
+        container2_layout.addWidget(text_label)
+
+        self.input = QLineEdit()
+        self.input.setFixedSize(250, 41)
+        self.input.setStyleSheet("""
+            border: 1px solid #1E5ECE;
+            border-radius: 5px;
+            padding: 0 14px;
+        """)
+        container2_layout.addWidget(self.input)
+
+        self.button = QPushButton("Buscar")
+        self.button.setFixedSize(110, 40)
+        self.button.setStyleSheet("""
+            background: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:0,
+                stop:0 rgba(30, 94, 206, 255), stop:0.74 rgba(91, 161, 225, 255));
+            color: white;
+            font-size: 16px;
+            font-weight: 900;
+            border-radius: 5px;
+        """)
+        self.button.clicked.connect(self.buscar_clima) 
+        container2_layout.addWidget(self.button, alignment=Qt.AlignCenter)
+
+        layout.addWidget(container2)
 
 
-    bloco = tk.Frame(janela, bg="white", bd=0)
-    canvas.create_window(largura//2, 500, window=bloco, width=320, height=260) 
-    
-    # # Imagem do globo
-    # imagem = Image.open("assets/earth.png")
-    # imagem = imagem.resize((150, 150))
-    # globo = ImageTk.PhotoImage(imagem)
-    # canvas.create_image(largura//2, 220, image=globo)
+    def buscar_clima(self):
+        cidade = self.input.text().strip()
+        if not cidade:
+            QMessageBox.warning(self, "Atenção", "Digite o nome de uma cidade.")
+            return
 
-    # Entrada e botões (em cima do canvas)
-    entrada_label = tk.Label(janela, text="Busque por uma cidade", font=("Arial", 12, "bold"), bg="#5BA1E1", fg="white")
-    entrada_label_window = canvas.create_window(largura//2, 320, window=entrada_label)
-
-    entrada_cidade = tk.Entry(janela, width=30, font=("Arial", 12))
-    entrada_window = canvas.create_window(largura//2, 350, window=entrada_cidade)
-
-    def buscar():
-        cidade = entrada_cidade.get()
         resultado = get_weather(cidade)
         if "erro" in resultado:
-            messagebox.showerror("Erro", resultado["erro"])
+            QMessageBox.critical(self, "Erro", "Cidade não encontrada.")
         else:
-            clima = f"""
-Temperatura: {resultado['temperatura']}°C
-Umidade: {resultado['umidade']}%
-Descrição: {resultado['descricao']}
-Pressão: {resultado['pressao']} hPa
-Vento: {resultado['vento']} m/s
-"""
-            messagebox.showinfo(f"Clima em {cidade}", clima)
+            mensagem = (
+                f"Clima em {cidade.title()}:\n\n"
+                f"Temperatura: {resultado['temperatura']}°C\n"
+                f"Umidade: {resultado['umidade']}%\n"
+                f"Descrição: {resultado['descricao']}\n"
+                f"Vento: {resultado['vento']} km/h\n"
+                f"Pressão: {resultado['pressao']} mb"
+            )
+            QMessageBox.information(self, "Clima Atual", mensagem)
 
-    botao = tk.Button(janela, text="Buscar", command=buscar, bg="#3399ff", fg="white", font=("Arial", 12, "bold"))
-    canvas.create_window(largura//2, 400, window=botao)
-
-    janela.mainloop()
+def iniciar_interface():
+    app = QApplication(sys.argv)
+    window = ClimaCodeApp()
+    window.show()
+    sys.exit(app.exec_())

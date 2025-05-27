@@ -1,5 +1,3 @@
-# weather.py
-
 import requests
 import os
 from dotenv import load_dotenv
@@ -7,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
-def get_weather(cidade):  # <- Renomeado aqui
+def get_weather(cidade): 
     url = f'http://api.weatherapi.com/v1/current.json?key={API_KEY}&q={cidade}&lang=pt'
     resposta = requests.get(url)
 
