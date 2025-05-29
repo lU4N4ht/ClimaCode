@@ -1,0 +1,5 @@
+# pip install -r requirements.txt
+# É necessário instalar esses pacotes para que o código funcione corretamente 
+PyQt5
+requests
+python-dotenv

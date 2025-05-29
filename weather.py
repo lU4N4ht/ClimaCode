@@ -16,7 +16,8 @@ def get_weather(cidade):
             'umidade': dados['current']['humidity'],
             'descricao': dados['current']['condition']['text'],
             'pressao': dados['current']['pressure_mb'],
-            'vento': dados['current']['wind_kph']
+            'vento': dados['current']['wind_kph'],
+            'precipitacao': dados['current']['precip_mm']  
         }
         return clima
     else:
