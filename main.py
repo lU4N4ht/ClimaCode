@@ -1,3 +1,3 @@
-from interface import iniciar_interface
+from ui.interface import iniciar_interface
 
 iniciar_interface()

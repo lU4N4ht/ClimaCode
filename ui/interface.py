@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QPixmap, QPalette, QLinearGradient, QColor, QBrush
 from PyQt5.QtCore import Qt
 import sys
-from weather import get_weather 
+from controllers.controller import buscar_clima_por_cidade
 
 
 class ClimaCodeApp(QWidget):
@@ -78,7 +78,7 @@ class ClimaCodeApp(QWidget):
             font-weight: 900;
             border-radius: 5px;
         """)
-        self.button.clicked.connect(self.buscar_clima) 
+        self.button.clicked.connect(self.buscar_clima)
         container2_layout.addWidget(self.button, alignment=Qt.AlignCenter)
 
         layout.addWidget(container2)
@@ -89,44 +89,11 @@ class ClimaCodeApp(QWidget):
             QMessageBox.warning(self, "Atenção", "Digite o nome de uma cidade válida.")
             return
 
-        resultado = get_weather(cidade)
+        resultado = buscar_clima_por_cidade(cidade)
         if "erro" in resultado:
-            QMessageBox.critical(self, "Erro", "Cidade não encontrada.")
+            QMessageBox.critical(self, "Erro", resultado["erro"])
         else:
-            alertas = analisar_alertas(resultado)
-            alerta_msg = "\n\n".join(alertas) if alertas else "Nenhum alerta detectado."
-
-            mensagem = (
-                f"Clima em {cidade.title()}:\n\n"
-                f"Temperatura: {resultado['temperatura']}°C\n"
-                f"Umidade: {resultado['umidade']}%\n"
-                f"Descrição: {resultado['descricao']}\n"
-                f"Vento: {resultado['vento']} km/h\n"
-                f"Pressão: {resultado['pressao']} mb\n"
-                f"Precipitação: {resultado['precipitacao']} mm\n\n"
-                f"{alerta_msg}"
-            )
-            QMessageBox.information(self, "Clima Atual", mensagem)
-
-def analisar_alertas(clima):
-    alertas = []
-
-    if clima['temperatura'] >= 40 or clima['temperatura'] <= 5:
-        alertas.append("Alerta de temperatura crítica!")
-
-    if clima['umidade'] <= 20 or clima['umidade'] >= 95:
-        alertas.append("Alerta de umidade crítica!")
-
-    if clima['precipitacao'] >= 80:
-        alertas.append("Alerta de risco de enchente!")
-
-    if clima['vento'] >= 70:
-        alertas.append("Alerta de ventos fortes!")
-
-    if clima['pressao'] <= 980:
-        alertas.append("Alerta de baixa pressão atmosférica!")
-
-    return alertas
+            QMessageBox.information(self, "Clima Atual", resultado["mensagem"])
 
 
 def iniciar_interface():
