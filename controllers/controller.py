@@ -32,7 +32,6 @@ def buscar_clima_por_cidade(cidade):
 
     alerta_msg = "\n\n".join(alertas) if alertas else "Nenhum alerta detectado."
 
-    # MENSAGEM FINAL AQUI, COMO VOCÊ PEDIU
     if total_alertas > 5:
         mensagem_final = "\n\nRisco Alto de Evento Climático Extremo"
     else:
@@ -44,7 +43,7 @@ def buscar_clima_por_cidade(cidade):
 
     historico_msg = (
         f"\n\n📅 Temperaturas últimas 2 semanas:\n"
-        f"Semana 1 (mais recente):\n"
+        f"\nSemana 1:\n"
         f"  Máxima: {semana1['maior']}°C\n"
         f"  Mínima: {semana1['menor']}°C\n"
         f"Semana 2:\n"
